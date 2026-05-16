@@ -22,9 +22,8 @@ function App() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 relative z-10">
         {/* Navbar */}
         <nav className="flex justify-between items-center py-4 mb-8">
-          <div className="text-2xl font-extrabold text-brand-blue flex items-center gap-2">
-            UY
-            <span className="bg-brand-yellow text-brand-blue px-2 py-0.5 rounded-md">Score</span>
+          <div className="flex items-center">
+            <img src="/logo_uy.png" alt="Logo UY" className="h-10 w-auto" />
           </div>
           <Button 
             className="bg-brand-blue text-white hover:bg-brand-blue/90 font-semibold"
