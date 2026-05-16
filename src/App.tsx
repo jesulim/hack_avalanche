@@ -36,7 +36,7 @@ function App() {
 
         <main>
           {/* Hero Section */}
-          <section className="text-center py-20 bg-white/50 rounded-3xl mb-16 relative overflow-hidden">
+          <section className="text-center py-16 md:py-20 px-6 md:px-12 bg-white/50 rounded-3xl mb-16 relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent opacity-60"></div>
             <div className="relative z-10">
               <h1 className="text-5xl md:text-7xl font-extrabold text-brand-blue mb-6 leading-tight tracking-tight">
@@ -46,11 +46,11 @@ function App() {
                 Democratizamos el acceso al crédito usando la red Avalanche. 
                 Tu historial es tuyo: inmutable, privado y sin intermediarios burocráticos.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="bg-brand-blue text-white hover:bg-brand-blue/90 text-lg px-8 py-6 rounded-xl font-bold shadow-lg shadow-brand-blue/20">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-xs mx-auto sm:max-w-none">
+                <Button className="w-full sm:w-auto bg-brand-blue text-white hover:bg-brand-blue/90 text-lg px-8 py-6 rounded-xl font-bold shadow-lg shadow-brand-blue/20">
                   Ver mi Score Crediticio
                 </Button>
-                <Button className="bg-brand-yellow text-brand-blue hover:bg-brand-yellow/90 text-lg px-8 py-6 rounded-xl font-bold shadow-lg shadow-brand-yellow/40 flex items-center gap-2">
+                <Button className="w-full sm:w-auto bg-brand-yellow text-brand-blue hover:bg-brand-yellow/90 text-lg px-8 py-6 rounded-xl font-bold shadow-lg shadow-brand-yellow/40 flex items-center justify-center gap-2">
                   Conocer más <ArrowRight size={20} />
                 </Button>
               </div>
