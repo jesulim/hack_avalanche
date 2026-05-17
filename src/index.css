@@ -2,19 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Reset default margins */
 body {
   margin: 0;
   padding: 0;
-}
-
-/* Modern Web3 Grid Pattern */
-.bg-grid-pattern {
-  background-size: 40px 40px;
-  background-image: 
-    linear-gradient(to right, rgba(0, 43, 127, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 43, 127, 0.04) 1px, transparent 1px);
-  /* Fades out the grid towards the bottom for a cleaner footer */
-  -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 95%);
-  mask-image: linear-gradient(to bottom, black 30%, transparent 95%);
+  font-family: "Satoshi", sans-serif;
+  background-color: #1a1a2e;
 }
