@@ -1,5 +1,5 @@
 import { useNavigate, useLocation, Link } from "react-router-dom"
-import { ShieldCheck, BarChart2, Wallet, ChevronRight, CheckCircle2, Zap, Users, Settings, TrendingUp, Lock } from "lucide-react"
+import { ShieldCheck, Wallet, ChevronRight, CheckCircle2, Zap, Users, Settings, TrendingUp, Lock } from "lucide-react"
 import heroImg from "../assets/hero.png"
 
 function TabSwitcher() {
