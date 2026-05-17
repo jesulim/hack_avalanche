@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   CheckCircle2, XCircle, Settings, Users, BarChart2,
-  ArrowUpRight, ExternalLink, ShieldCheck, TrendingUp,
+  ArrowUpRight, ExternalLink, ShieldCheck, TrendingUp, Save,
 } from "lucide-react"
 import { MOCK_INSTITUTION, MOCK_APPLICANTS, MOCK_CONFIG, type ApplicantStatus } from "../lib/mock-b2b"
 
@@ -148,7 +148,47 @@ function ApplicantDetail({ applicant }: { applicant: Applicant }) {
   )
 }
 
+type ConfigSection = "weights" | "multipliers" | "thresholds"
+
 function ConfigPanel() {
+  const [weights, setWeights] = useState(() => MOCK_CONFIG.weights.map(w => ({ ...w })))
+  const [multipliers, setMultipliers] = useState(() => MOCK_CONFIG.multipliers.map(m => ({ ...m })))
+  const [thresholds, setThresholds] = useState(() => MOCK_CONFIG.thresholds.map(t => ({ ...t })))
+  const [editing, setEditing] = useState<ConfigSection | null>(null)
+  const [saved, setSaved] = useState<ConfigSection | null>(null)
+
+  const handleSave = (section: ConfigSection) => {
+    setEditing(null)
+    setSaved(section)
+    setTimeout(() => setSaved(null), 2000)
+  }
+
+  const weightTotal = weights.reduce((acc, w) => acc + w.value, 0)
+
+  const ActionButton = ({ section, label }: { section: ConfigSection; label: string }) => {
+    if (saved === section) return (
+      <div className="mt-5 w-full py-2.5 rounded-xl bg-uy-mint/15 text-uy-mint text-xs font-bold flex items-center justify-center gap-2">
+        <CheckCircle2 size={12} /> Guardado
+      </div>
+    )
+    if (editing === section) return (
+      <button
+        onClick={() => handleSave(section)}
+        className="mt-5 w-full py-2.5 rounded-xl bg-uy-primary text-white text-xs font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+      >
+        <Save size={12} /> Guardar cambios
+      </button>
+    )
+    return (
+      <button
+        onClick={() => setEditing(section)}
+        className="mt-5 w-full py-2.5 rounded-xl border border-gray-200 text-gray-400 text-xs font-bold hover:border-uy-primary hover:text-uy-primary transition-colors flex items-center justify-center gap-2"
+      >
+        <Settings size={12} /> {label}
+      </button>
+    )
+  }
+
   return (
     <div className="grid md:grid-cols-3 gap-6">
       {/* Pesos */}
@@ -156,21 +196,37 @@ function ConfigPanel() {
         <h3 className="font-black text-uy-ink mb-1">Pesos por categoría</h3>
         <p className="text-gray-400 text-xs mb-5">Cómo se distribuye el score total.</p>
         <div className="flex flex-col gap-4">
-          {MOCK_CONFIG.weights.map((w) => (
+          {weights.map((w, i) => (
             <div key={w.label}>
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-semibold text-uy-ink">{w.label}</span>
                 <span className="text-xs font-black text-uy-ink">{w.value}%</span>
               </div>
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div className={`h-full ${w.color} rounded-full`} style={{ width: `${w.value * 3}%` }} />
-              </div>
+              {editing === "weights" ? (
+                <input
+                  type="range" min={0} max={60} value={w.value}
+                  onChange={(e) => {
+                    const next = [...weights]
+                    next[i] = { ...next[i], value: Number(e.target.value) }
+                    setWeights(next)
+                  }}
+                  className="w-full h-2 rounded-full cursor-pointer"
+                  style={{ accentColor: "#3845f5" }}
+                />
+              ) : (
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className={`h-full ${w.color} rounded-full transition-all duration-500`} style={{ width: `${w.value * 3}%` }} />
+                </div>
+              )}
             </div>
           ))}
         </div>
-        <button className="mt-5 w-full py-2.5 rounded-xl border border-gray-200 text-gray-400 text-xs font-bold hover:border-uy-primary hover:text-uy-primary transition-colors flex items-center justify-center gap-2">
-          <Settings size={12} /> Editar pesos
-        </button>
+        {editing === "weights" && (
+          <p className={`text-[10px] mt-3 font-semibold ${weightTotal === 100 ? "text-uy-mint" : "text-uy-coral"}`}>
+            Total: {weightTotal}%{weightTotal !== 100 ? " — debe sumar 100%" : " ✓"}
+          </p>
+        )}
+        <ActionButton section="weights" label="Editar pesos" />
       </div>
 
       {/* Multiplicadores */}
@@ -178,19 +234,39 @@ function ConfigPanel() {
         <h3 className="font-black text-uy-ink mb-1">Multiplicadores activos</h3>
         <p className="text-gray-400 text-xs mb-5">Bonus por uso de productos Banco Unión.</p>
         <div className="flex flex-col gap-3">
-          {MOCK_CONFIG.multipliers.map((m) => (
+          {multipliers.map((m, i) => (
             <div key={m.product} className="bg-uy-bg rounded-2xl px-4 py-3">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-uy-ink font-semibold text-sm">{m.category}</span>
-                <span className="bg-uy-primary/10 text-uy-primary text-xs font-black rounded-full px-2 py-0.5">×{m.value}</span>
+                {editing === "multipliers" ? (
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => {
+                        const next = [...multipliers]
+                        next[i] = { ...next[i], value: Math.max(1, next[i].value - 1) }
+                        setMultipliers(next)
+                      }}
+                      className="w-6 h-6 rounded-lg bg-white border border-gray-200 text-uy-ink font-black text-xs flex items-center justify-center hover:border-uy-primary hover:text-uy-primary transition-colors"
+                    >−</button>
+                    <span className="bg-uy-primary/10 text-uy-primary text-xs font-black rounded-full px-2 py-0.5 min-w-[2rem] text-center">×{m.value}</span>
+                    <button
+                      onClick={() => {
+                        const next = [...multipliers]
+                        next[i] = { ...next[i], value: Math.min(10, next[i].value + 1) }
+                        setMultipliers(next)
+                      }}
+                      className="w-6 h-6 rounded-lg bg-white border border-gray-200 text-uy-ink font-black text-xs flex items-center justify-center hover:border-uy-primary hover:text-uy-primary transition-colors"
+                    >+</button>
+                  </div>
+                ) : (
+                  <span className="bg-uy-primary/10 text-uy-primary text-xs font-black rounded-full px-2 py-0.5">×{m.value}</span>
+                )}
               </div>
               <p className="text-gray-400 text-[10px]">{m.product}</p>
             </div>
           ))}
         </div>
-        <button className="mt-5 w-full py-2.5 rounded-xl border border-gray-200 text-gray-400 text-xs font-bold hover:border-uy-primary hover:text-uy-primary transition-colors flex items-center justify-center gap-2">
-          <Settings size={12} /> Editar multiplicadores
-        </button>
+        <ActionButton section="multipliers" label="Editar multiplicadores" />
       </div>
 
       {/* Umbrales */}
@@ -198,19 +274,45 @@ function ConfigPanel() {
         <h3 className="font-black text-uy-ink mb-1">Umbrales de crédito</h3>
         <p className="text-gray-400 text-xs mb-5">Score mínimo por producto crediticio.</p>
         <div className="flex flex-col gap-3">
-          {MOCK_CONFIG.thresholds.map((t) => (
+          {thresholds.map((t, i) => (
             <div key={t.product} className="bg-uy-bg rounded-2xl px-4 py-3">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-uy-ink font-semibold text-sm">{t.product}</span>
-                <span className="text-uy-mint font-black text-sm">{t.score}+</span>
+                {editing === "thresholds" ? (
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number" min={300} max={950} value={t.score}
+                      onChange={(e) => {
+                        const next = [...thresholds]
+                        next[i] = { ...next[i], score: Number(e.target.value) }
+                        setThresholds(next)
+                      }}
+                      className="w-16 text-uy-mint font-black text-sm border border-uy-mint/40 rounded-lg px-2 py-0.5 text-center bg-white focus:outline-none focus:border-uy-mint"
+                    />
+                    <span className="text-uy-mint font-black text-sm">+</span>
+                  </div>
+                ) : (
+                  <span className="text-uy-mint font-black text-sm">{t.score}+</span>
+                )}
               </div>
-              <p className="text-gray-400 text-[10px]">hasta {t.maxAmount}</p>
+              {editing === "thresholds" ? (
+                <input
+                  type="text" value={t.maxAmount}
+                  onChange={(e) => {
+                    const next = [...thresholds]
+                    next[i] = { ...next[i], maxAmount: e.target.value }
+                    setThresholds(next)
+                  }}
+                  className="text-gray-400 text-[10px] border-b border-gray-200 bg-transparent w-full focus:outline-none focus:border-uy-primary"
+                  placeholder="hasta $X,XXX"
+                />
+              ) : (
+                <p className="text-gray-400 text-[10px]">hasta {t.maxAmount}</p>
+              )}
             </div>
           ))}
         </div>
-        <button className="mt-5 w-full py-2.5 rounded-xl border border-gray-200 text-gray-400 text-xs font-bold hover:border-uy-primary hover:text-uy-primary transition-colors flex items-center justify-center gap-2">
-          <Settings size={12} /> Editar umbrales
-        </button>
+        <ActionButton section="thresholds" label="Editar umbrales" />
       </div>
     </div>
   )
